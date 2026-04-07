@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LearnUpon | Group Hierarchy Architect</title>
+<style>
+:root {
+  --lu-primary: #2B66F6; 
+  --lu-primary-dark: #1A4BD2;
+  --lu-primary-glow: rgba(43, 102, 246, 0.5);
+  --lu-dark: #081A3E;
+  --lu-text: #4A5568;
+  --lu-border: rgba(255, 255, 255, 0.4);
+  --glass-bg: rgba(255, 255, 255, 0.65);
+  --glass-panel: rgba(255, 255, 255, 0.85);
+  --radius: 16px;
+  --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+
+/* Subtle fluid mesh background for the body to make the glass pop */
+body {
+  font-family: var(--font-main);
+  background: linear-gradient(135deg, #e2e8f0 0%, #ffffff 50%, #dbeafe 100%);
+  color: var(--lu-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+/* Main App Container - CSS Grid strictly separates header, canvas, and footer */
+#app {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: 740px;
+  width: 100%;
+  max-width: 1140px;
+  background: var(--glass-panel);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  border-radius: 20px;
+  box-shadow: 0 24px 48px rgba(8, 26, 62, 0.08), inset 0 1px 1px rgba(255,255,255,1);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Liquid Glass Top Navigation */
+#top-nav {
+  padding: 24px 32px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.3);
+  z-index: 10;
+}
+
+.nav-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.header-tag {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #64748B;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  padding: 8px 16px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+}
+
+/* Timeline Container - Glass Pill */
+#timeline-container {
+  position: relative;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 50px;
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.02), 0 4px 12px rgba(8, 26, 62, 0.04);
+}
+
+.timeline-track-bg {
+  position: absolute;
+  top: 50%;
+  left: 36px;
+  right: 36px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255,255,255,0.8);
+  transform: translateY(-50%);
+  border-radius: 2px;
+  z-index: 1;
+}
+
+.timeline-track-fill {
+  position: absolute;
+  top: 50%;
+  left: 36px;
+  height: 4px;
+  background: linear-gradient(90deg, #2B66F6, #60A5FA);
+  transform: translateY(-50%);
+  border-radius: 2px;
+  z-index: 2;
+  width: 0%;
+  transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 0 10px var(--lu-primary-glow);
+}
+
+.step-node-wrapper {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  width: 48px;
+}
+
+.step-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
+  border: 2px solid #E2E8F0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #94A3B8;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.step-label {
+  position: absolute;
+  top: 40px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #64748B;
+  text-align: center;
+  width: 80px;
+  opacity: 0;
+  transform: translateY(-5px);
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+/* Timeline Active/Done States */
+.step-node-wrapper:hover .step-circle {
+  border-color: var(--lu-primary);
+  transform: scale(1.1);
+  color: var(--lu-primary);
+}
+.step-node-wrapper:hover .step-label {
+  opacity: 1;
+  transform: translateY(0);
+}
+.step-node-wrapper.done .step-circle {
+  background: var(--lu-primary);
+  border-color: var(--lu-primary);
+  color: #fff;
+  box-shadow: 0 0 10px var(--lu-primary-glow);
+}
+.step-node-wrapper.done .step-label {
+  opacity: 1;
+  transform: translateY(0);
+  color: var(--lu-text);
+}
+.step-node-wrapper.active .step-circle {
+  background: var(--lu-primary);
+  border-color: #fff;
+  color: #fff;
+  transform: scale(1.25);
+  box-shadow: 0 0 0 4px rgba(43, 102, 246, 0.2), 0 4px 12px var(--lu-primary-glow);
+}
+.step-node-wrapper.active .step-label {
+  opacity: 1;
+  transform: translateY(4px);
+  color: var(--lu-primary-dark);
+  font-weight: 800;
+}
+
+/* Canvas Area */
+#canvas-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Lets the body gradient bleed through transparently */
+  background: transparent; 
+}
+#story-canvas { 
+  width: 100%; 
+  height: 100%; 
+  max-height: 100%;
+}
+
+/* Dynamic Content Animations */
+.anim-content { transition: opacity 0.3s ease, transform 0.3s ease; }
+.anim-content.fade-out { opacity: 0; transform: translateY(5px); }
+.anim-content.fade-in { opacity: 1; transform: translateY(0); }
+
+/* Bottom Info Panel - Solid to anchor the floating glass */
+#info-panel {
+  background: #ffffff;
+  border-top: 1px solid #E2E8F0;
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  grid-template-rows: 1fr auto;
+  padding: 24px 32px;
+  gap: 16px 24px;
+  height: 220px;
+  z-index: 10;
+}
+#text-content { grid-column: 1; grid-row: 1; }
+#text-content h1 { font-size: 20px; margin-bottom: 8px; color: var(--lu-dark); line-height: 1.3; font-weight: 800; letter-spacing: -0.5px; }
+#text-content p { font-size: 14px; line-height: 1.6; color: var(--lu-text); padding-right: 20px;}
+
+#controls { grid-column: 1; grid-row: 2; display: flex; gap: 12px; align-items: flex-end; }
+.btn { padding: 10px 24px; border-radius: 8px; border: 1px solid #CBD5E1; background: #fff; cursor: pointer; font-weight: 600; font-size: 13px; transition: all 0.2s; font-family: var(--font-main); color: var(--lu-text); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+.btn:hover { border-color: var(--lu-primary); color: var(--lu-primary); box-shadow: 0 4px 8px rgba(43, 102, 246, 0.1); }
+.btn-primary { background: var(--lu-primary); color: #fff; border-color: var(--lu-primary); }
+.btn-primary:hover { background: var(--lu-primary-dark); color: #fff; transform: translateY(-1px); box-shadow: 0 6px 16px var(--lu-primary-glow); }
+
+#api-box { grid-column: 2; grid-row: 1 / span 2; background: #0F172A; color: #E2E8F0; border-radius: 12px; padding: 18px 20px; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; line-height: 1.7; position: relative; height: 100%; overflow-y: auto; border: 1px solid #1E293B; box-shadow: inset 0 2px 15px rgba(0,0,0,0.3), 0 10px 20px rgba(8, 26, 62, 0.1); }
+#api-call-content { white-space: pre-wrap; word-wrap: break-word; }
+.api-box-label { display: inline-block; background: #1E293B; color: #94A3B8; font-size: 9px; letter-spacing: 0.8px; padding: 4px 8px; border-radius: 4px; margin-bottom: 12px; font-weight: 700; border: 1px solid #334155; }
+
+/* SVG Tooltip - Glass Style */
+.node-hover { cursor: pointer; transition: all 0.2s ease; transform-origin: center; }
+.node-hover:hover { filter: drop-shadow(0px 8px 16px rgba(8, 26, 62, 0.15)); }
+#tooltip { position: absolute; background: rgba(8, 26, 62, 0.85); backdrop-filter: blur(8px); color: #fff; padding: 12px 16px; border-radius: 8px; font-size: 11.5px; line-height: 1.6; pointer-events: none; z-index: 1000; opacity: 0; transition: opacity 0.15s ease, transform 0.15s ease; box-shadow: 0 8px 24px rgba(8, 26, 62, 0.2); transform: translateY(5px) scale(0.95); border: 1px solid rgba(255,255,255,0.1); }
+#tooltip.show { opacity: 1; transform: translateY(0) scale(1); }
+
+/* Syntax Highlighting */
+.m-get{color:#38BDF8;font-weight:700}.m-post{color:#34D399;font-weight:700}.m-put{color:#FBBF24;font-weight:700}.m-del{color:#F87171;font-weight:700}
+.c-primary{color:#60A5FA}.c-comment{color:#94A3B8; font-style: italic;}.c-str{color:#F472B6}.c-num{color:#A78BFA}
+
+/* Canvas Animations */
+@keyframes popIn{from{opacity:0;transform:scale(0.85)}to{opacity:1;transform:scale(1)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes drawLine{from{stroke-dashoffset:300}to{stroke-dashoffset:0}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+</style>
+</head>
+<body>
+<div id="tooltip"></div>
+<div id="app">
+  
+  <header id="top-nav">
+    <div class="nav-header">
+      <svg width="180" height="42" viewBox="0 0 180 42" xmlns="http://www.w3.org/2000/svg">
+        <path d="M 12 2 L 30 2 C 37.7 2 42 6.3 42 14 L 42 28 C 42 35.7 37.7 40 30 40 L 12 40 C 4.3 40 0 35.7 0 28 L 0 14 C 0 6.3 4.3 2 12 2 Z" fill="#2B66F6"/>
+        <path d="M 14 16 L 14 27 C 14 30.5 16 32.5 19.5 32.5 L 24 32.5" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M 27 18 L 27 25 C 27 28.5 29 30 32 30 C 35 30 37 28.5 37 25 L 37 18" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="52" y="31" font-family="Inter, sans-serif" font-weight="800" font-size="28" fill="#081A3E" letter-spacing="-0.5">LearnUpon</text>
+      </svg>
+      <div class="header-tag">Group Hierarchy Architect</div>
+    </div>
+    
+    <div id="timeline-container">
+      <div class="timeline-track-bg"></div>
+      <div class="timeline-track-fill" id="track-fill"></div>
+      <div id="timeline-nodes" style="display: contents;"></div>
+    </div>
+  </header>
+  
+  <main id="main-stage">
+    <div id="canvas-container">
+      <svg id="story-canvas" viewBox="0 0 900 380" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+  </main>
+  
+  <section id="info-panel">
+    <div id="text-content" class="anim-content">
+      <h1 id="step-headline"></h1>
+      <p id="step-detail"></p>
+    </div>
+    <div id="controls">
+      <button class="btn" onclick="nav(-1)">← Back</button>
+      <button class="btn btn-primary" id="next-btn" onclick="nav(1)">Continue →</button>
+    </div>
+    <div id="api-box" class="anim-content">
+      <div class="api-box-label" id="api-label">API CALL</div>
+      <div id="api-call-content"></div>
+    </div>
+  </section>
+  
+</div>
+
+<script>
+const svg = document.getElementById('story-canvas');
+const ttip = document.getElementById('tooltip');
+
+function showTooltip(e, content) {
+  ttip.innerHTML = content;
+  ttip.classList.add('show');
+  moveTooltip(e);
+}
+function hideTooltip() { ttip.classList.remove('show'); }
+function moveTooltip(e) {
+  ttip.style.left = (e.pageX + 15) + 'px';
+  ttip.style.top = (e.pageY + 15) + 'px';
+}
+
+const GC = {
+  gray:   {fill:'#ffffff', stroke:'#CBD5E1', text:'#475569', badge:'#F1F5F9', bt:'#64748B'},
+  primary:{fill:'#EDF2FF', stroke:'#2B66F6', text:'#1A4BD2', badge:'#C3D4FC', bt:'#081A3E'},
+  coral:  {fill:'#FFF1F2', stroke:'#E11D48', text:'#BE123C', badge:'#FECDD3', bt:'#881337'},
+  blue:   {fill:'#F0F9FF', stroke:'#0284C7', text:'#0369A1', badge:'#BAE6FD', bt:'#0C4A6E'},
+  amber:  {fill:'#FFFBEB', stroke:'#D97706', text:'#B45309', badge:'#FDE68A', bt:'#78350F'},
+  purple: {fill:'#FAF5FF', stroke:'#9333EA', text:'#7E22CE', badge:'#E9D5FF', bt:'#581C87'},
+  red:    {fill:'#FEF2F2', stroke:'#EF4444', text:'#B91C1C', badge:'#FECACA', bt:'#7F1D1D'}
+};
+
+function el(tag,attrs,parent){const e=document.createElementNS('http://www.w3.org/2000/svg',tag);Object.entries(attrs||{}).forEach(([k,v])=>e.setAttribute(k,v));if(parent)parent.appendChild(e);return e;}
+function txt(x,y,text,attrs,parent){const t=el('text',{x,y,'text-anchor':'middle','dominant-baseline':'central',...attrs},parent);t.textContent=text;return t;}
+function aG(d=0){const g=el('g',{style:`animation:popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) ${d}s both`},svg);return g;}
+function fG(d=0){const g=el('g',{style:`animation:fadeUp 0.35s ease ${d}s both`},svg);return g;}
+function sG(d=0){const g=el('g',{style:`animation:slideIn 0.3s ease ${d}s both`},svg);return g;}
+function clear(){while(svg.firstChild)svg.removeChild(svg.firstChild);mkDefs();}
+
+function mkDefs(){
+  const d=el('defs',{},svg);
+  const mk=(id,col)=>{const m=el('marker',{id,viewBox:'0 0 10 10',refX:'8',refY:'5',markerWidth:'5',markerHeight:'5',orient:'auto-start-reverse'},d);el('path',{d:'M2 1L8 5L2 9',fill:'none',stroke:col,'stroke-width':'1.5','stroke-linecap':'round'},m);};
+  mk('ah','#2B66F6'); mk('ah2','#E11D48'); mk('ah3','#0284C7');
+}
+
+function uCard(x, y, name, role, color, delay, parent) {
+  const p = parent || aG(delay); if(!parent) svg.appendChild(p);
+  p.setAttribute('class', 'node-hover'); 
+  
+  const c = GC[color] || GC.gray;
+  el('circle', {cx:x, cy:y, r:26, fill:c.fill, stroke:c.stroke, 'stroke-width':'1.5'}, p);
+  txt(x, y-6, name[0]||'', {'font-size':15, fill:c.text, 'font-weight':'800'}, p);
+  
+  if (role === 'manager') {
+    el('circle', {cx:x+16, cy:y-16, r:10, fill:c.stroke, stroke:'#fff', 'stroke-width':'1.5'}, p);
+    txt(x+16, y-15, 'M', {'font-size':9, fill:'#fff', 'font-weight':'bold'}, p);
+  } else if (role === 'vp') {
+    el('circle', {cx:x+18, cy:y-16, r:11, fill:c.stroke, stroke:'#fff', 'stroke-width':'1.5'}, p);
+    txt(x+18, y-15, 'VP', {'font-size':8, fill:'#fff', 'font-weight':'bold'}, p);
+  }
+  
+  el('rect', {x:x-22, y:y+28, width:44, height:13, rx:3, fill:c.badge}, p);
+  txt(x, y+34, name.length>5 ? name.slice(0,5)+'…' : name, {'font-size':7, fill:c.bt, 'font-weight':'700'}, p);
+  
+  p.onmouseenter = (e) => showTooltip(e, `<span style="color:#60A5FA">Name:</span> <b>${name}</b><br><span style="color:#60A5FA">Role:</span> <span style="text-transform:capitalize">${role}</span>`);
+  p.onmousemove = moveTooltip;
+  p.onmouseleave = hideTooltip;
+  return p;
+}
+
+function gBox(x, y, w, h, label, color, delay) {
+  const g = aG(delay); svg.appendChild(g); 
+  const c = GC[color] || GC.primary;
+  g.setAttribute('class', 'node-hover');
+  
+  // Clean white background for boxes to stand out against app mesh gradient
+  el('rect', {x:x-w/2, y:y-h/2, width:w, height:h, rx:12, fill:'#ffffff', stroke:c.stroke, 'stroke-width':'1.5', 'stroke-dasharray':'5 3'}, g);
+  txt(x, y-h/2+14, label, {'font-size':10, fill:c.text, 'font-weight':'800'}, g);
+  
+  g.onmouseenter = (e) => showTooltip(e, `<span style="color:#60A5FA">Group Name:</span><br><b>${label}</b><br><br><span style="color:#60A5FA">Type:</span> Security Boundary`);
+  g.onmousemove = moveTooltip;
+  g.onmouseleave = hideTooltip;
+  return g;
+}
+
+function cLine(x1, y1, x2, y2, col, marker, delay, dash) {
+  const g = fG(delay); svg.appendChild(g);
+  const a = {x1, y1, x2, y2, stroke:col, 'stroke-width':'1.5'};
+  if(marker) a['marker-end'] = `url(#${marker})`; if(dash) a['stroke-dasharray'] = '5 3';
+  const ln = el('line', a, g);
+  ln.style.strokeDasharray = '300'; ln.style.strokeDashoffset = '300';
+  ln.style.animation = `drawLine 0.5s ease ${delay}s both`;
+}
+
+/* Adjusting Canvas Coordinates mapping for 900x380 SVG (prevents clipping) */
+function s0() { clear(); uCard(450,140,'James','learner','gray',0); const g=fG(0.3);svg.appendChild(g); el('rect',{x:366,y:198,width:168,height:42,rx:6,fill:GC.gray.fill,stroke:GC.gray.stroke,'stroke-width':'0.5'},g); txt(450,213,'Arrived from HRIS / IdP',{'font-size':10,fill:GC.gray.text, 'font-weight':700},g); txt(450,229,'Learner · No group · No permissions',{'font-size':9,fill:'#64748B'},g); }
+function s1() { clear(); uCard(450,100,'James','learner','gray',0); const dg=aG(0.2);svg.appendChild(dg); el('polygon',{points:'450,155 512,193 450,231 388,193',fill:GC.purple.fill,stroke:GC.purple.stroke,'stroke-width':'1'},dg); txt(450,193,'Manager?',{'font-size':11,fill:GC.purple.text,'font-weight':'800'},dg); const yg=fG(0.4);svg.appendChild(yg); el('line',{x1:388,y1:193,x2:318,y2:263,stroke:'#94A3B8','stroke-width':'1','stroke-dasharray':'3 3'},yg); el('rect',{x:258,y:259,width:84,height:34,rx:6,fill:GC.primary.fill,stroke:GC.primary.stroke,'stroke-width':'0.5'},yg); txt(300,269,'YES',{'font-size':11,fill:GC.primary.text,'font-weight':'800'},yg); txt(300,283,'→ Promote',{'font-size':9,fill:GC.primary.bt},yg); const ng=fG(0.5);svg.appendChild(ng); el('line',{x1:512,y1:193,x2:582,y2:263,stroke:'#94A3B8','stroke-width':'1','stroke-dasharray':'3 3'},ng); el('rect',{x:560,y:259,width:84,height:34,rx:6,fill:GC.gray.fill,stroke:GC.gray.stroke,'stroke-width':'0.5'},ng); txt(602,269,'NO',{'font-size':11,fill:GC.gray.text,'font-weight':'800'},ng); txt(602,283,'→ Group',{'font-size':9,fill:'#64748B'},ng); }
+function s2() { clear(); uCard(354, 165, 'James', 'learner', 'gray', 0); const ag=fG(0.25);svg.appendChild(ag); el('rect',{x:408,y:152,width:68,height:26,rx:5,fill:GC.amber.fill,stroke:GC.amber.stroke,'stroke-width':'0.5'},ag); txt(442,165,'PUT /users',{'font-size':9,fill:GC.amber.text,'font-family':'monospace', 'font-weight':700},ag); cLine(476,165,512,165,'#D97706','ah2',0.3); uCard(544, 165, 'James', 'manager', 'primary', 0.5); const wg=fG(0.7);svg.appendChild(wg); el('rect',{x:328,y:236,width:244,height:34,rx:6,fill:GC.amber.fill,stroke:GC.amber.stroke,'stroke-width':'0.5'},wg); txt(450,247,'"approve enrollments" permission',{'font-size':9,fill:GC.amber.text, 'font-weight':700},wg); txt(450,261,'must be set manually in UI after this call',{'font-size':8.5,fill:GC.amber.bt},wg); }
+function s3() { clear(); uCard(450,62,'James','manager','primary',0); cLine(450,88,450,110,'#2B66F6','ah',0.15,true); gBox(450,202,288,162,'UK Sales — James Smith','primary',0.2); const eg=fG(0.45);svg.appendChild(eg); el('rect',{x:350,y:156,width:200,height:80,rx:8,fill:GC.gray.fill,stroke:GC.gray.stroke,'stroke-width':'0.5','stroke-dasharray':'4 3'},eg); txt(450,188,'Empty — ready for members',{'font-size':10,fill:'#64748B'},eg); txt(450,206,'group_id: 91',{'font-size':10,fill:'#475569','font-family':'monospace', 'font-weight':700},eg); const ig=fG(0.65);svg.appendChild(ig); el('rect',{x:320,y:295,width:260,height:24,rx:5,fill:GC.primary.fill,stroke:GC.primary.stroke,'stroke-width':'0.5'},ig); txt(450,307,'Store group_id · used in next 2 calls',{'font-size':9,fill:GC.primary.text, 'font-weight':700},ig); }
+function s4() { clear(); gBox(450,202,300,168,'UK Sales — James Smith','primary',0); uCard(450,58,'James','manager','primary',0.05); cLine(450,84,450,116,'#2B66F6',null,0.1,true); [{n:'Sarah',x:330},{n:'Tom',x:390},{n:'Priya',x:450},{n:'Amir',x:510},{n:'Zoe',x:570}].forEach((m,i)=>uCard(m.x,190,m.n,'learner','primary',0.2+i*0.1)); const lg=fG(1.0);svg.appendChild(lg); el('rect',{x:300,y:300,width:300,height:24,rx:5,fill:GC.primary.fill,stroke:GC.primary.stroke,'stroke-width':'0.5'},lg); txt(450,312,'POST /group_memberships · once per user',{'font-size':9,fill:GC.primary.text, 'font-weight':700},lg); }
+function s5() { clear(); gBox(450,202,300,168,'UK Sales — James Smith','primary',0); [{n:'Sarah',x:330},{n:'Tom',x:390},{n:'Priya',x:450},{n:'Amir',x:510},{n:'Zoe',x:570}].forEach(m=>uCard(m.x,195,m.n,'learner','primary',0)); uCard(450,58,'James','manager','coral',0.05); cLine(450,84,450,116,'#E11D48','ah2',0.35); const lb=fG(0.5);svg.appendChild(lb); el('rect',{x:364,y:103,width:172,height:22,rx:4,fill:GC.coral.fill,stroke:GC.coral.stroke,'stroke-width':'0.5'},lb); txt(450,114,'Manager of this group',{'font-size':9,fill:GC.coral.text,'font-weight':'800'},lb); const lg=fG(0.65);svg.appendChild(lg); el('rect',{x:290,y:305,width:320,height:24,rx:5,fill:GC.coral.fill,stroke:GC.coral.stroke,'stroke-width':'0.5'},lg); txt(450,317,'POST /portal_invites · owns this group',{'font-size':9,fill:GC.coral.text, 'font-weight':700},lg); }
+function s6() { clear(); gBox(280,210,216,152,'UK Sales — James','primary',0); gBox(620,210,216,152,'APAC Sales — Maria','blue',0.1); [{n:'S',x:202},{n:'T',x:240},{n:'P',x:280},{n:'A',x:320},{n:'Z',x:358}].forEach(m=>uCard(m.x,200,m.n,'learner','primary',0)); [{n:'W',x:542},{n:'L',x:580},{n:'R',x:620},{n:'N',x:660},{n:'D',x:698}].forEach(m=>uCard(m.x,200,m.n,'learner','blue',0.05)); uCard(280,70,'James','manager','coral',0); uCard(620,70,'Maria','manager','coral',0.1); cLine(280,96,280,132,'#E11D48','ah2',0.3); cLine(620,96,620,132,'#E11D48','ah2',0.4); const lg=fG(0.65);svg.appendChild(lg); el('rect',{x:338,y:300,width:224,height:18,rx:4,fill:GC.gray.fill,stroke:GC.gray.stroke,'stroke-width':'0.5'},lg); txt(450,309,'Same 4 calls · repeat per team',{'font-size':8.5,fill:GC.gray.text, 'font-weight':700},lg); }
+function s7() { clear(); gBox(280,220,216,144,'UK Sales — James','primary',0); gBox(620,220,216,144,'APAC Sales — Maria','blue',0); [{n:'S',x:202},{n:'T',x:240},{n:'P',x:280},{n:'A',x:320},{n:'Z',x:358}].forEach(m=>uCard(m.x,208,m.n,'learner','primary',0)); [{n:'W',x:542},{n:'L',x:580},{n:'R',x:620},{n:'N',x:660},{n:'D',x:698}].forEach(m=>uCard(m.x,208,m.n,'learner','blue',0)); uCard(280,80,'James','manager','coral',0); uCard(620,80,'Maria','manager','coral',0); uCard(450,42,'Rachel','vp','primary',0.3); cLine(428,72,285,146,'#2B66F6','ah',0.55,true); cLine(472,72,615,146,'#2B66F6','ah',0.7,true); const lg=fG(0.85);svg.appendChild(lg); el('rect',{x:290,y:305,width:320,height:14,rx:4,fill:GC.primary.fill,stroke:GC.primary.stroke,'stroke-width':'0.5'},lg); txt(450,312,'portal_invites × 2 · full skip-level visibility',{'font-size':8.5,fill:GC.primary.text, 'font-weight':700},lg); }
+function s8() { clear(); const ch=fG(0);svg.appendChild(ch); el('rect',{x:198,y:20,width:504,height:320,rx:8,fill:'#fff',stroke:'#E2E8F0','stroke-width':'1'},ch); el('rect',{x:198,y:20,width:504,height:32,rx:8,fill:'#F8FAFC',stroke:'#E2E8F0','stroke-width':'1'},ch); el('rect',{x:198,y:36,width:504,height:16,fill:'#F8FAFC'},ch); el('rect',{x:204,y:26,width:20,height:20,rx:5,fill:'#2B66F6'},ch); el('path',{d:'M 208 31 L 211 35 L 217 28',stroke:'#fff','stroke-width':'2','stroke-linecap':'round',fill:'none'},ch); txt(245,36,'LearnUpon',{'font-size':11,fill:'#081A3E','font-weight':'800'},ch); txt(624,36,'James Smith · Manager',{'font-size':9,fill:'#4A5568'},ch); const sd=fG(0.1);svg.appendChild(sd); el('rect',{x:198,y:52,width:92,height:288,fill:'#F8FAFC',stroke:'#E2E8F0','stroke-width':'1'},sd); [{t:'Dashboard',y:74},{t:'My Groups',y:96,a:1},{t:'Reports',y:118}].forEach(item=>{ if(item.a)el('rect',{x:198,y:item.y-10,width:92,height:22,fill:'#EDF2FF'},sd); txt(242,item.y,item.t,{'font-size':9,'text-anchor':'middle',fill:item.a?'#1A4BD2':'#4A5568', 'font-weight':item.a?'700':'500'},sd); }); const mn=fG(0.2);svg.appendChild(mn); txt(492,72,'UK Sales — James Smith',{'font-size':12,fill:'#081A3E','font-weight':'800','text-anchor':'middle'},mn); [{l:'Total',v:'5',c:GC.gray,x:318},{l:'Complete',v:'2',c:GC.primary,x:418},{l:'In progress',v:'2',c:GC.amber,x:526},{l:'Not started',v:'1',c:GC.gray,x:626}].forEach(card=>{ const cg=aG(0.35);svg.appendChild(cg); el('rect',{x:card.x-40,y:84,width:80,height:46,rx:6,fill:card.c.fill,stroke:card.c.stroke,'stroke-width':'0.5'},cg); txt(card.x,100,card.v,{'font-size':18,fill:card.c.text,'font-weight':'800'},cg); txt(card.x,122,card.l,{'font-size':8,fill:card.c.bt, 'font-weight':600},cg); }); const tg=fG(0.5);svg.appendChild(tg); el('rect',{x:294,y:142,width:380,height:20,fill:'#F1F5F9'},tg); ['Learner','Course','Status','Progress'].forEach((h,i)=>txt(322+i*84,152,h,{'font-size':8.5,fill:'#64748B','text-anchor':'middle', 'font-weight':700},tg)); [{n:'Sarah K',s:'Complete',p:'100%',c:GC.primary},{n:'Tom B',s:'In progress',p:'60%',c:GC.amber},{n:'Priya M',s:'Complete',p:'100%',c:GC.primary},{n:'Amir S',s:'In progress',p:'30%',c:GC.amber},{n:'Zoe W',s:'Not started',p:'0%',c:GC.gray}].forEach((r,i)=>{ const rg=sG(0.6+i*0.08);svg.appendChild(rg); el('rect',{x:294,y:164+i*28,width:380,height:28,fill:i%2===0?'#fff':'#F8FAFC', stroke:'#E2E8F0', 'stroke-width':'0.5'},rg); txt(322,178+i*28,r.n,{'font-size':8.5,fill:'#081A3E','text-anchor':'middle', 'font-weight':600},rg); txt(406,178+i*28,'Compliance 101',{'font-size':8,fill:'#4A5568','text-anchor':'middle'},rg); el('rect',{x:458,y:168+i*28,width:64,height:16,rx:4,fill:r.c.fill},rg); txt(490,178+i*28,r.s,{'font-size':7.5,fill:r.c.text,'text-anchor':'middle', 'font-weight':700},rg); txt(574,178+i*28,r.p,{'font-size':8.5,fill:r.c.text,'text-anchor':'middle', 'font-weight':700},rg); }); }
+function s9() { clear(); const ch=fG(0);svg.appendChild(ch); el('rect',{x:198,y:20,width:504,height:320,rx:8,fill:'#fff',stroke:'#E2E8F0','stroke-width':'1'},ch); el('rect',{x:198,y:20,width:504,height:32,rx:8,fill:'#F8FAFC',stroke:'#E2E8F0','stroke-width':'1'},ch); el('rect',{x:198,y:36,width:504,height:16,fill:'#F8FAFC'},ch); el('rect',{x:204,y:26,width:20,height:20,rx:5,fill:'#2B66F6'},ch); el('path',{d:'M 208 31 L 211 35 L 217 28',stroke:'#fff','stroke-width':'2','stroke-linecap':'round',fill:'none'},ch); txt(245,36,'LearnUpon',{'font-size':11,fill:'#081A3E','font-weight':'800'},ch); txt(624,36,'Rachel Moore · VP',{'font-size':9,fill:'#4A5568'},ch); const sd=fG(0.1);svg.appendChild(sd); el('rect',{x:198,y:52,width:92,height:288,fill:'#F8FAFC',stroke:'#E2E8F0','stroke-width':'1'},sd); [{t:'Dashboard',y:74},{t:'My Groups',y:96,a:1},{t:'Reports',y:118}].forEach(item=>{ if(item.a)el('rect',{x:198,y:item.y-10,width:92,height:22,fill:'#EDF2FF'},sd); txt(242,item.y,item.t,{'font-size':9,'text-anchor':'middle',fill:item.a?'#1A4BD2':'#4A5568', 'font-weight':item.a?'700':'500'},sd); }); const hd=fG(0.2);svg.appendChild(hd); txt(492,72,'My Groups (2)',{'font-size':12,fill:'#081A3E','font-weight':'800','text-anchor':'middle'},hd); const g1=aG(0.3);svg.appendChild(g1); el('rect',{x:300,y:86,width:168,height:84,rx:8,fill:GC.primary.fill,stroke:GC.primary.stroke,'stroke-width':'1'},g1); txt(384,104,'UK Sales — James',{'font-size':9,fill:GC.primary.text,'font-weight':'800'},g1); txt(384,122,'5 learners',{'font-size':9,fill:GC.primary.bt},g1); el('rect',{x:318,y:136,width:52,height:18,rx:4,fill:'#C3D4FC'},g1);txt(344,145,'Report',{'font-size':8,fill:GC.primary.bt, 'font-weight':700},g1); el('rect',{x:378,y:136,width:52,height:18,rx:4,fill:GC.primary.fill,stroke:GC.primary.stroke,'stroke-width':'1'},g1);txt(404,145,'Enroll',{'font-size':8,fill:GC.primary.text, 'font-weight':700},g1); const g2=aG(0.4);svg.appendChild(g2); el('rect',{x:504,y:86,width:168,height:84,rx:8,fill:GC.blue.fill,stroke:GC.blue.stroke,'stroke-width':'1'},g2); txt(588,104,'APAC Sales — Maria',{'font-size':9,fill:GC.blue.text,'font-weight':'800'},g2); txt(588,122,'5 learners',{'font-size':9,fill:GC.blue.bt},g2); el('rect',{x:522,y:136,width:52,height:18,rx:4,fill:'#BAE6FD'},g2);txt(548,145,'Report',{'font-size':8,fill:GC.blue.bt, 'font-weight':700},g2); el('rect',{x:582,y:136,width:52,height:18,rx:4,fill:GC.blue.fill,stroke:GC.blue.stroke,'stroke-width':'1'},g2);txt(608,145,'Enroll',{'font-size':8,fill:GC.blue.text, 'font-weight':700},g2); const pb=fG(0.55);svg.appendChild(pb); el('rect',{x:300,y:186,width:372,height:52,rx:6,fill:GC.primary.fill,stroke:GC.primary.stroke,'stroke-width':'0.5'},pb); txt(350,202,'What is possible',{'font-size':9,fill:GC.primary.text,'font-weight':'800','text-anchor':'start'},pb); txt(318,217,'Report per group · switch between groups · export each',{'font-size':8.5,fill:GC.primary.bt,'text-anchor':'start'},pb); txt(318,230,'Full learner-level detail · completion rates',{'font-size':8.5,fill:GC.primary.bt,'text-anchor':'start'},pb); const nb=fG(0.7);svg.appendChild(nb); el('rect',{x:300,y:248,width:372,height:52,rx:6,fill:GC.red.fill,stroke:GC.red.stroke,'stroke-width':'0.5'},nb); txt(350,264,'Not natively possible',{'font-size':9,fill:GC.red.text,'font-weight':'800','text-anchor':'start'},nb); txt(318,279,'Single roll-up view across all groups in one dashboard',{'font-size':8.5,fill:GC.red.bt,'text-anchor':'start'},nb); txt(318,293,'Automated scheduled cross-group completion report',{'font-size':8.5,fill:GC.red.bt,'text-anchor':'start'},nb); }
+
+const STEPS=[
+  {slabel:'Arrive', label:'User sync',headline:'A user lands in LearnUpon from your HRIS',detail:'Workday, SAP, Azure AD — whichever system your organisation uses creates the user automatically via SCIM or SAML. They arrive as a Learner with no group and no manager permissions.',api:'<span class="m-get">GET</span> /api/v1/users?email=james@co.com\n\n<span class="c-comment">// Retrieve internal user_id</span>\n{ "id": <span class="c-num">4821</span> }',apilabel:'API CALL',draw:s0},
+  {slabel:'Check', label:'Manager check',headline:'Does this person manage direct reports?',detail:'The integration reads a manager flag from the HRIS. This single field determines everything that follows. Manager = true means promote first. Manager = false means skip straight to group assignment.',api:'<span class="c-comment">// HRIS field check</span>\nmanager_flag = <span class="c-primary">true</span>  → promote first\nmanager_flag = <span class="c-comment">false</span> → skip to group',apilabel:'LOGIC',draw:s1},
+  {slabel:'Promote', label:'Promote manager',headline:'One API call promotes them to Manager type',detail:'The user type changes from Learner to Manager. They now have access to group reports, learner visibility, and enrollment management. Note: the approve enrollments permission must still be set manually.',api:'<span class="m-put">PUT</span> /api/v1/users/<span class="c-num">4821</span>\n{\n  "user": {\n    "user_type": <span class="c-str">"manager"</span>\n  }\n}',apilabel:'API CALL',draw:s2},
+  {slabel:'Group', label:'Group created',headline:'A group is created — the team\'s home',detail:'Groups are named after the team or manager. The integration first checks if the group exists. If not, it creates it and stores the returned group_id for the next two calls.',api:'<span class="m-post">POST</span> /api/v1/groups\n{\n  "group": {\n    "name": <span class="c-str">"UK Sales — James"</span>\n  }\n}\n<span class="c-comment">// Returns group_id: 91</span>',apilabel:'API CALL',draw:s3},
+  {slabel:'Join', label:'Team joins group',headline:'Users are linked to the group via Memberships',detail:'Each user — including the manager — is linked to the group via a Group Membership record. This places them inside the group and makes them visible to the manager.',api:'<span class="m-post">POST</span> /api/v1/group_memberships\n{\n  "group_membership": {\n    "user_id": <span class="c-num">4821</span>,\n    "group_id": <span class="c-num">91</span>\n  }\n}\n<span class="c-comment">// Run once per user</span>',apilabel:'API CALL',draw:s4},
+  {slabel:'Assign', label:'Manager assigned',headline:'The manager is assigned over the group',detail:'Being a group member is not enough. This separate call gives the manager their reporting view and permissions over the group. They can now see every learner and run reports.',api:'<span class="m-post">POST</span> /api/v1/portal_invites\n{\n  "portal_invite": {\n    "email": <span class="c-str">"james@co.com"</span>,\n    "group_id": <span class="c-num">91</span>,\n    "user_type": <span class="c-str">"manager"</span>\n  }\n}',apilabel:'API CALL',draw:s5},
+  {slabel:'Repeat', label:'Second group',headline:'The pattern repeats — a second team forms',detail:'Exactly the same four calls for a different manager and team. A second group grows on the canvas. Both teams are now fully set up, independently managed, with their own managers.',api:'<span class="c-comment">// Same sequence · different manager</span>\n<span class="m-post">POST</span> /api/v1/groups\n<span class="m-post">POST</span> /api/v1/group_memberships\n<span class="m-post">POST</span> /api/v1/portal_invites\n\n<span class="c-comment">// group_id: 104</span>',apilabel:'API CALL',draw:s6},
+  {slabel:'VP', label:'VP skip-level',headline:'A VP gets visibility across both teams',detail:'Run portal_invites twice for the VP — once per group. No parent-group concept needed, no extra build. Two calls give Rachel full visibility and reporting access across both teams.',api:'<span class="c-comment">// Assign VP across both groups</span>\n<span class="m-post">POST</span> /portal_invites { group_id: <span class="c-num">91</span>  }\n<span class="m-post">POST</span> /portal_invites { group_id: <span class="c-num">104</span> }',apilabel:'API CALL',draw:s7},
+  {slabel:'M-View', label:'Manager view',headline:'What a manager sees in LearnUpon',detail:'James logs in to his portal and sees his group. He runs a course status report showing completions, in-progress and not-started for his direct reports. Clean, contained, and scoped to his group only.',api:'<span class="c-primary">Natively available</span>\n─────────────────────\nCourse status report per group\nLearner progress and completions\nEnrollment management\nGroup-scoped reporting only\n\n<span class="c-comment">// No extra build needed</span>',apilabel:'WHAT IS POSSIBLE',draw:s8},
+  {slabel:'VP-View', label:'VP view',headline:'What a VP can and cannot see',detail:'Rachel sees two group cards. She can report on each separately and export. But there is no single combined view across both groups natively. Aggregated reporting requires the API or a BI tool.',api:'<span class="c-primary">Possible</span>\n─────────────────\nReport per group individually\nExport CSV per group\n\n<span class="m-del">Not natively possible</span>\n─────────────────────────\nSingle roll-up across all groups\nAuto cross-group dashboard',apilabel:'LIMITATIONS',draw:s9},
+];
+
+let cur=0;
+
+function buildUI(){
+  const list = document.getElementById('timeline-nodes');
+  
+  STEPS.forEach((s,i)=>{
+    const d = document.createElement('div');
+    d.className = 'step-node-wrapper';
+    d.id = `si-${i}`;
+    d.onclick = () => navTo(i);
+    
+    d.innerHTML = `
+      <div class="step-circle" id="sn-${i}">${i+1}</div>
+      <div class="step-label">${s.slabel}</div>
+    `;
+    list.appendChild(d);
+  });
+  
+  setTimeout(goTo, 50);
+}
+
+function navTo(i) {
+  if (cur === i) return;
+  cur = Math.max(0, Math.min(STEPS.length-1, i));
+  
+  const texts = document.querySelectorAll('.anim-content');
+  texts.forEach(t => {
+    t.classList.remove('fade-in');
+    t.classList.add('fade-out');
+  });
+  
+  setTimeout(() => {
+    goTo();
+    texts.forEach(t => {
+      t.classList.remove('fade-out');
+      t.classList.add('fade-in');
+    });
+  }, 150); 
+}
+
+function goTo() {
+  const s = STEPS[cur];
+  
+  STEPS.forEach((_,j)=>{
+    const si = document.getElementById(`si-${j}`);
+    si.className = 'step-node-wrapper' + (j===cur ? ' active' : j<cur ? ' done' : '');
+    const sn = document.getElementById(`sn-${j}`);
+    if(j < cur) {
+        sn.innerHTML = `<svg viewBox="0 0 12 12" style="width:12px;height:12px;stroke:#fff;stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round;"><path d="M 2.5 6 L 5 8.5 L 9.5 3.5"/></svg>`;
+    } else {
+        sn.innerHTML = j+1;
+    }
+  });
+
+  const fill = document.getElementById('track-fill');
+  const percentage = (cur / (STEPS.length - 1)) * 100;
+  fill.style.width = `${percentage}%`;
+
+  document.getElementById('step-headline').textContent = s.headline;
+  document.getElementById('step-detail').textContent = s.detail;
+  document.getElementById('api-call-content').innerHTML = s.api; 
+  document.getElementById('api-label').textContent = s.apilabel;
+  
+  // Disable Back button on step 1
+  const backBtn = document.querySelector('button[onclick="nav(-1)"]');
+  if(cur === 0) {
+    backBtn.style.opacity = '0.5';
+    backBtn.style.pointerEvents = 'none';
+  } else {
+    backBtn.style.opacity = '1';
+    backBtn.style.pointerEvents = 'auto';
+  }
+  
+  document.getElementById('next-btn').textContent = cur === STEPS.length-1 ? 'Finish' : 'Continue →';
+  
+  s.draw();
+}
+
+function nav(d){ navTo(cur+d); }
+
+buildUI();
+</script>
+</body>
+</html>
