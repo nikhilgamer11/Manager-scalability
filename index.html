@@ -96,7 +96,6 @@ body {
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.02), 0 4px 12px rgba(8, 26, 62, 0.04);
 }
 
-/* LIQUID GLASS TUBE - Background */
 .timeline-track-bg {
   position: absolute; top: 50%; left: 48px; right: 48px; height: 10px;
   background: rgba(255, 255, 255, 0.25);
@@ -105,10 +104,8 @@ body {
   transform: translateY(-50%); border-radius: 10px; z-index: 1;
 }
 
-/* LIQUID FLOW EFFECT - Fill */
 .timeline-track-fill {
   position: absolute; top: 50%; left: 48px; height: 10px;
-  /* Multi-layer background: animated stripes over a color gradient */
   background-image: 
     repeating-linear-gradient(
       -45deg,
@@ -125,7 +122,6 @@ body {
   animation: liquidFlow 1s linear infinite;
 }
 
-/* PLASMA FLARE - Leading Edge */
 .timeline-track-fill::after {
   content: ''; position: absolute; right: -6px; top: -3px; width: 16px; height: 16px;
   background: #ffffff; border-radius: 50%;
@@ -236,7 +232,8 @@ body {
     <div id="timeline-container">
       <div class="timeline-track-bg"></div>
       <div class="timeline-track-fill" id="track-fill"></div>
-      </div>
+      <div id="timeline-nodes" style="display: contents;"></div>
+    </div>
   </header>
   
   <main id="main-stage">
@@ -762,6 +759,7 @@ const STEPS = [
 let cur = 0;
 
 function buildUI() {
+  // Grab the container, making sure the div exists
   const container = document.getElementById('timeline-nodes');
   
   STEPS.forEach((s, i) => {
