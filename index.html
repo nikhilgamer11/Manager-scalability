@@ -147,20 +147,20 @@ body {
 #info-panel {
   flex-shrink: 0; background: #ffffff; border-top: 1px solid #E2E8F0; display: grid;
   grid-template-columns: 1fr 400px; grid-template-rows: auto auto; padding: 24px 32px;
-  gap: 16px 24px; min-height: 220px; z-index: 10;
+  gap: 16px 24px; min-height: 220px; z-index: 10; transition: all 0.3s ease;
 }
-#text-content { grid-column: 1; grid-row: 1; }
+#text-content { grid-column: 1; grid-row: 1; transition: all 0.3s ease;}
 #text-content h1 { font-size: 20px; margin-bottom: 8px; color: var(--lu-dark); line-height: 1.3; font-weight: 800; letter-spacing: -0.5px; }
 #text-content p { font-size: 14px; line-height: 1.6; color: var(--lu-text); padding-right: 20px;}
 
-#controls { grid-column: 1; grid-row: 2; display: flex; gap: 12px; align-items: flex-end; }
+#controls { grid-column: 1; grid-row: 2; display: flex; gap: 12px; align-items: flex-end; transition: all 0.3s ease;}
 .btn { padding: 10px 24px; border-radius: 8px; border: 1px solid #CBD5E1; background: #fff; cursor: pointer; font-weight: 600; font-size: 13px; transition: all 0.2s; font-family: var(--font-main); color: var(--lu-text); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
 .btn:hover { border-color: var(--lu-primary); color: var(--lu-primary); box-shadow: 0 4px 8px rgba(43, 102, 246, 0.1); }
 .btn-primary { background: var(--lu-primary); color: #fff; border-color: var(--lu-primary); }
 .btn-primary:hover { background: var(--lu-primary-dark); color: #fff; transform: translateY(-1px); box-shadow: 0 6px 16px var(--lu-primary-glow); }
 
 /* API Box & Copy Button */
-#api-box { grid-column: 2; grid-row: 1 / span 2; background: #0F172A; color: #E2E8F0; border-radius: 12px; padding: 16px 20px; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; line-height: 1.6; position: relative; max-height: 180px; overflow-y: auto; border: 1px solid #1E293B; box-shadow: inset 0 2px 15px rgba(0,0,0,0.3), 0 10px 20px rgba(8, 26, 62, 0.1); }
+#api-box { grid-column: 2; grid-row: 1 / span 2; background: #0F172A; color: #E2E8F0; border-radius: 12px; padding: 16px 20px; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; line-height: 1.6; position: relative; max-height: 180px; overflow-y: auto; border: 1px solid #1E293B; box-shadow: inset 0 2px 15px rgba(0,0,0,0.3), 0 10px 20px rgba(8, 26, 62, 0.1); transition: opacity 0.3s ease; }
 .api-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; position: sticky; top: 0; background: #0F172A; padding-bottom: 4px; z-index: 2; }
 .api-box-label { display: inline-block; background: #1E293B; color: #94A3B8; font-size: 9px; letter-spacing: 0.8px; padding: 4px 8px; border-radius: 4px; font-weight: 700; border: 1px solid #334155; }
 #api-call-content { white-space: pre-wrap; word-wrap: break-word; }
@@ -186,7 +186,6 @@ body {
 .anim-content.fade-out { opacity: 0; transform: translateY(5px); }
 .anim-content.fade-in { opacity: 1; transform: translateY(0); }
 
-/* SVG Flow Line Animation */
 @keyframes flowDash { to { stroke-dashoffset: -16; } }
 .path-flow { stroke-dasharray: 6 6; animation: fadeUp 0.3s ease both, flowDash 0.8s linear infinite; }
 
@@ -229,7 +228,7 @@ body {
       <h1 id="step-headline"></h1>
       <p id="step-detail"></p>
     </div>
-    <div id="controls">
+    <div id="controls" class="anim-content">
       <button class="btn" onclick="nav(-1)">← Back</button>
       <button class="btn btn-primary" id="next-btn" onclick="nav(1)">Continue →</button>
     </div>
@@ -364,38 +363,39 @@ function s8() { clear(); const ch=fG(0);svg.appendChild(ch); el('rect',{x:180,y:
 function s9() { clear(); const ch=fG(0);svg.appendChild(ch); el('rect',{x:180,y:10,width:540,height:360,rx:8,fill:'#fff',stroke:'#E2E8F0','stroke-width':'1'},ch); el('rect',{x:180,y:10,width:540,height:45,rx:8,fill:'#F8FAFC',stroke:'#E2E8F0','stroke-width':'1'},ch); el('rect',{x:180,y:30,width:540,height:25,fill:'#F8FAFC'},ch); el('rect',{x:195,y:20,width:24,height:24,rx:6,fill:'#2B66F6'},ch); el('path',{d:'M 200 26 L 205 32 L 213 22',stroke:'#fff','stroke-width':'2.5','stroke-linecap':'round',fill:'none'},ch); txt(230,32,'LearnUpon',{'font-size':12,fill:'#081A3E','font-weight':'800','text-anchor':'start'},ch); txt(705,32,'Rachel Moore · VP',{'font-size':10,fill:'#4A5568','text-anchor':'end'},ch); const sd=fG(0.1);svg.appendChild(sd); el('rect',{x:180,y:55,width:110,height:315,fill:'#F8FAFC',stroke:'#E2E8F0','stroke-width':'1'},sd); [{t:'Dashboard',y:80},{t:'My Groups',y:105,a:1},{t:'Reports',y:130}].forEach(item=>{ if(item.a)el('rect',{x:180,y:item.y-12,width:110,height:24,fill:'#EDF2FF'},sd); txt(235,item.y,item.t,{'font-size':10,'text-anchor':'middle',fill:item.a?'#1A4BD2':'#4A5568', 'font-weight':item.a?'700':'500'},sd); }); const hd=fG(0.2);svg.appendChild(hd); txt(505,85,'My Groups (2)',{'font-size':13,fill:'#081A3E','font-weight':'800','text-anchor':'middle'},hd); const g1=aG(0.3);svg.appendChild(g1); el('rect',{x:315,y:110,width:180,height:100,rx:8,fill:GC.primary.fill,stroke:GC.primary.stroke,'stroke-width':'1'},g1); txt(405,135,'UK Sales — James',{'font-size':10,fill:GC.primary.text,'font-weight':'800'},g1); txt(405,155,'5 learners',{'font-size':9.5,fill:GC.primary.bt},g1); el('rect',{x:335,y:175,width:60,height:20,rx:4,fill:'#C3D4FC'},g1);txt(365,185,'Report',{'font-size':8.5,fill:GC.primary.bt, 'font-weight':700},g1); el('rect',{x:415,y:175,width:60,height:20,rx:4,fill:GC.primary.fill,stroke:GC.primary.stroke,'stroke-width':'1'},g1);txt(445,185,'Enroll',{'font-size':8.5,fill:GC.primary.text, 'font-weight':700},g1); const g2=aG(0.4);svg.appendChild(g2); el('rect',{x:515,y:110,width:180,height:100,rx:8,fill:GC.blue.fill,stroke:GC.blue.stroke,'stroke-width':'1'},g2); txt(605,135,'APAC Sales — Maria',{'font-size':10,fill:GC.blue.text,'font-weight':'800'},g2); txt(605,155,'5 learners',{'font-size':9.5,fill:GC.blue.bt},g2); el('rect',{x:535,y:175,width:60,height:20,rx:4,fill:'#BAE6FD'},g2);txt(565,185,'Report',{'font-size':8.5,fill:GC.blue.bt, 'font-weight':700},g2); el('rect',{x:615,y:175,width:60,height:20,rx:4,fill:GC.blue.fill,stroke:GC.blue.stroke,'stroke-width':'1'},g2);txt(645,185,'Enroll',{'font-size':8.5,fill:GC.blue.text, 'font-weight':700},g2); const pb=fG(0.55);svg.appendChild(pb); el('rect',{x:315,y:230,width:380,height:56,rx:6,fill:GC.primary.fill,stroke:GC.primary.stroke,'stroke-width':'0.5'},pb); txt(375,248,'What is possible',{'font-size':10,fill:GC.primary.text,'font-weight':'800','text-anchor':'start'},pb); txt(335,265,'Report per group · switch between groups · export each',{'font-size':9,fill:GC.primary.bt,'text-anchor':'start'},pb); const nb=fG(0.7);svg.appendChild(nb); el('rect',{x:315,y:296,width:380,height:56,rx:6,fill:GC.red.fill,stroke:GC.red.stroke,'stroke-width':'0.5'},nb); txt(375,314,'Not natively possible',{'font-size':10,fill:GC.red.text,'font-weight':'800','text-anchor':'start'},nb); txt(335,331,'Single roll-up view across all groups in one dashboard',{'font-size':9,fill:GC.red.bt,'text-anchor':'start'},nb); }
 function s10() { 
   clear(); 
-  // Confetti Animation
-  for(let i=0; i<20; i++){
+  for(let i=0; i<40; i++){
     const cx = 450 + (Math.random()-0.5)*800;
-    const cy = 200 + (Math.random()-0.5)*300;
-    el('circle', {cx, cy, r:Math.random()*4+3, fill:['#2B66F6','#E11D48','#0284C7','#D97706'][i%4], style:`animation: floatParticle ${1.5+Math.random()}s ease infinite alternate; opacity: 0.6;`}, svg);
+    const cy = 200 + (Math.random()-0.5)*380;
+    el('circle', {cx, cy, r:Math.random()*4+2, fill:['#2B66F6','#E11D48','#34D399','#FBBF24'][i%4], style:`animation: floatParticle ${1.5+Math.random()}s ease infinite alternate; opacity: 0.6;`}, svg);
   }
-  
-  // Header Checkmark
-  const g = aG(0);
-  el('circle', {cx:450, cy:100, r:40, fill:'#EDF2FF'}, g);
-  el('circle', {cx:450, cy:100, r:30, fill:'#2B66F6', style:'box-shadow: 0 0 20px rgba(43,102,246,0.5)'}, g);
-  el('path', {d:'M 440 100 L 447 108 L 462 92', stroke:'#fff', 'stroke-width':'4', 'stroke-linecap':'round', fill:'none'}, g);
-  txt(450, 170, "Architecture Complete. What's Next?", {'font-size':24, fill:'#081A3E', 'font-weight':800}, g);
 
-  // 3-Card Tips Dashboard
-  const tips = [
-    { title: "API Rate Limits", t1: "LearnUpon handles up to 100", t2: "requests per minute. Batch", t3: "your calls to prevent 429 errors.", icon: "M13 2L3 14h9l-1 8 10-12h-9l1-8z", color: "amber" },
-    { title: "Sync Frequency", t1: "Choose between Event-Driven", t2: "(webhooks) and Scheduled Batch", t3: "Syncs based on your HRIS.", icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z", color: "blue" },
-    { title: "Error Handling", t1: "Log failed API responses.", t2: "Store the LearnUpon user_id", t3: "locally to avoid extra lookups.", icon: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z", color: "coral" }
+  const g = aG(0);
+  el('circle', {cx:450, cy:55, r:35, fill:'#EDF2FF'}, g);
+  el('circle', {cx:450, cy:55, r:24, fill:'#2B66F6'}, g);
+  el('path', {d:'M 442 55 L 448 61 L 458 47', stroke:'#fff', 'stroke-width':'3', 'stroke-linecap':'round', fill:'none'}, g);
+  txt(450, 115, "Architecture Complete. What's Next?", {'font-size':24, fill:'#081A3E', 'font-weight':800}, g);
+
+  const cg = fG(0.3);
+  el('rect', {x: 245, y: 150, width: 410, height: 210, rx: 12, fill: 'rgba(8, 26, 62, 0.08)'}, cg);
+  el('rect', {x: 250, y: 145, width: 400, height: 210, rx: 12, fill: '#0F172A', stroke: '#1E293B', 'stroke-width': 1}, cg);
+
+  el('rect', {x: 280, y: 165, width: 84, height: 24, rx: 4, fill: '#1E293B'}, cg);
+  txt(322, 177, "CHECKLIST", {'font-size': 10, fill: '#94A3B8', 'font-weight': 700, 'letter-spacing': '1px'}, cg);
+
+  txt(280, 210, "Developer Checklist", {'font-size': 17, fill: '#60A5FA', 'font-weight': 700, 'text-anchor': 'start', 'font-family': 'monospace'}, cg);
+  el('line', {x1: 280, y1: 225, x2: 620, y2: 225, stroke: '#334155', 'stroke-width': 1}, cg);
+
+  const items = [
+    "Generate LearnUpon OAuth Credentials",
+    "Map HRIS fields to LearnUpon User object",
+    "Determine Delta vs. Full Sync strategy",
+    "Build retry mechanisms for 429/500 errors",
+    "Run a sandbox test with 5 pilot users"
   ];
 
-  tips.forEach((tip, i) => {
-    const cg = fG(0.3 + i*0.15);
-    const x = 50 + i*275;
-    const c = GC[tip.color];
-    el('rect', {x: x, y: 210, width: 250, height: 130, rx: 12, fill: '#fff', stroke: '#E2E8F0', 'stroke-width': 1}, cg);
-    el('rect', {x: x+20, y: 230, width: 32, height: 32, rx: 8, fill: c.fill}, cg);
-    el('path', {d: tip.icon, stroke: c.stroke, 'stroke-width': 2, fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round', transform: `translate(${x+24}, 234) scale(0.66)`}, cg);
-    txt(x+65, 246, tip.title, {'font-size': 13, fill: '#081A3E', 'font-weight': 800, 'text-anchor': 'start'}, cg);
-    txt(x+20, 280, tip.t1, {'font-size': 11.5, fill: '#4A5568', 'text-anchor': 'start'}, cg);
-    txt(x+20, 298, tip.t2, {'font-size': 11.5, fill: '#4A5568', 'text-anchor': 'start'}, cg);
-    txt(x+20, 316, tip.t3, {'font-size': 11.5, fill: '#4A5568', 'text-anchor': 'start'}, cg);
+  items.forEach((item, i) => {
+    const y = 250 + i * 22;
+    txt(280, y, "[ ]  " + item, {'font-size': 12.5, fill: '#E2E8F0', 'font-family': 'monospace', 'text-anchor': 'start'}, cg);
   });
 }
 
@@ -410,7 +410,7 @@ const STEPS=[
   {slabel:'VP', label:'VP skip-level',headline:'A VP gets visibility across both teams',detail:'Run group_managers twice for the VP — once per group. No parent-group concept needed. Two calls give Rachel full visibility and reporting access across both teams.',api:'<span class="c-comment">// Assign VP across both groups</span>\n<span class="m-post">POST</span> /group_managers { group_id: <span class="c-num">91</span>  }\n<span class="m-post">POST</span> /group_managers { group_id: <span class="c-num">104</span> }',apilabel:'API CALL',draw:s7},
   {slabel:'M-View', label:'Manager view',headline:'What a manager sees in LearnUpon',detail:'James logs in to his portal and sees his group. He runs a course status report showing completions, in-progress and not-started for his direct reports. Clean, contained, and scoped to his group only.',api:'<span class="c-primary">Natively available</span>\n─────────────────────\nCourse status report per group\nLearner progress and completions\nEnrollment management\nGroup-scoped reporting only',apilabel:'WHAT IS POSSIBLE',draw:s8},
   {slabel:'VP-View', label:'VP view',headline:'What a VP can and cannot see',detail:'Rachel sees two group cards. She can report on each separately and export. But there is no single combined view across both groups natively. Aggregated reporting requires the API or a BI tool.',api:'<span class="c-primary">Possible</span>\n─────────────────\nReport per group individually\nExport CSV per group\n\n<span style="color:#F87171; font-weight:700;">Not natively possible</span>\n─────────────────────────\nSingle roll-up across all groups\nAuto cross-group dashboard',apilabel:'LIMITATIONS',draw:s9},
-  {slabel:'Finish', label:'What\'s Next',headline:'Tips & Tricks for a Resilient Integration',detail:'You now understand the complete hierarchy mapping logic inside LearnUpon. As you move into development, keep these architectural best practices in mind to build a robust, scalable sync.',api:'<span class="c-primary">Developer Checklist</span>\n──────────────────────────\n[ ] Generate LearnUpon OAuth Credentials\n[ ] Map HRIS fields to LearnUpon User object\n[ ] Determine Delta vs. Full Sync strategy\n[ ] Build retry mechanisms for 429/500 errors\n[ ] Run a sandbox test with 5 pilot users\n\n<span class="c-comment">// Start building!</span>',apilabel:'CHECKLIST',draw:s10},
+  {slabel:'Finish', label:'Ready',headline:'Ready for Integration Build',detail:'You now understand the complete hierarchy mapping logic inside LearnUpon. You can safely map your HRIS structure using these API endpoints. Happy building!',api:'',apilabel:'',draw:s10},
 ];
 
 let cur=0;
@@ -464,9 +464,26 @@ function goTo() {
   document.getElementById('api-call-content').innerHTML = s.api; 
   document.getElementById('api-label').textContent = s.apilabel;
   
-  // Show copy button only for actual API calls
   const copyBtn = document.getElementById('copy-btn');
-  copyBtn.style.display = s.apilabel === 'API CALL' ? 'flex' : 'none';
+  const apiBox = document.getElementById('api-box');
+  const textContent = document.getElementById('text-content');
+  const controls = document.getElementById('controls');
+
+  if (s.apilabel === 'API CALL' && cur !== STEPS.length - 1) {
+      copyBtn.style.display = 'flex';
+  } else {
+      copyBtn.style.display = 'none';
+  }
+  
+  if (cur === STEPS.length - 1) {
+      apiBox.style.display = 'none';
+      textContent.style.gridColumn = '1 / span 2';
+      controls.style.gridColumn = '1 / span 2';
+  } else {
+      apiBox.style.display = 'block';
+      textContent.style.gridColumn = '1';
+      controls.style.gridColumn = '1';
+  }
   
   const backBtn = document.querySelector('button[onclick="nav(-1)"]');
   const nextBtn = document.getElementById('next-btn');
