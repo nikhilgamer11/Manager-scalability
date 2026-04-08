@@ -96,26 +96,46 @@ body {
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.02), 0 4px 12px rgba(8, 26, 62, 0.04);
 }
 
+/* LIQUID GLASS TUBE - Background */
 .timeline-track-bg {
-  position: absolute; top: 50%; left: 36px; right: 36px; height: 4px;
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid rgba(255,255,255,0.9);
-  transform: translateY(-50%); border-radius: 2px; z-index: 1;
+  position: absolute; top: 50%; left: 48px; right: 48px; height: 10px;
+  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+  transform: translateY(-50%); border-radius: 10px; z-index: 1;
 }
 
+/* LIQUID FLOW EFFECT - Fill */
 .timeline-track-fill {
-  position: absolute; top: 50%; left: 36px; height: 4px;
-  background: linear-gradient(90deg, var(--glow-green-dark), var(--glow-green-light));
-  transform: translateY(-50%); border-radius: 2px; z-index: 2; width: 0%;
+  position: absolute; top: 50%; left: 48px; height: 10px;
+  /* Multi-layer background: animated stripes over a color gradient */
+  background-image: 
+    repeating-linear-gradient(
+      -45deg,
+      rgba(255, 255, 255, 0.3) 0px,
+      rgba(255, 255, 255, 0.3) 8px,
+      transparent 8px,
+      transparent 16px
+    ),
+    linear-gradient(90deg, var(--lu-primary), var(--glow-green-light));
+  background-size: 22px 22px, 100% 100%;
+  transform: translateY(-50%); border-radius: 10px; z-index: 2; width: 0%;
   transition: width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 0 12px var(--glow-shadow), 0 0 4px var(--glow-green-light);
+  box-shadow: 0 0 16px var(--glow-shadow), inset 0 2px 4px rgba(255,255,255,0.6);
+  animation: liquidFlow 1s linear infinite;
 }
 
+/* PLASMA FLARE - Leading Edge */
 .timeline-track-fill::after {
-  content: ''; position: absolute; right: -4px; top: -3px; width: 10px; height: 10px;
-  background: #fff; border-radius: 50%;
-  box-shadow: 0 0 16px 6px var(--glow-shadow-intense);
-  transition: all 0.3s ease;
+  content: ''; position: absolute; right: -6px; top: -3px; width: 16px; height: 16px;
+  background: #ffffff; border-radius: 50%;
+  box-shadow: 0 0 20px 8px var(--glow-shadow-intense), 0 0 8px 4px #fff;
+  z-index: 5;
+}
+
+@keyframes liquidFlow {
+  0% { background-position: 0 0, 0 0; }
+  100% { background-position: 22px 0, 0 0; }
 }
 
 .step-node-wrapper {
@@ -123,7 +143,7 @@ body {
 }
 
 .step-circle {
-  width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 255, 255, 0.9);
+  width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 255, 255, 0.95);
   border: 2px solid #E2E8F0; display: flex; align-items: center; justify-content: center;
   font-size: 12px; font-weight: 700; color: #94A3B8;
   transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -192,7 +212,6 @@ body {
 
 @keyframes flowDash { to { stroke-dashoffset: -16; } }
 .path-flow { stroke-dasharray: 6 6; animation: fadeUp 0.4s ease both, flowDash 0.8s linear infinite; }
-
 @keyframes popIn{from{opacity:0;transform:scale(0.85) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 @keyframes drawLine{from{stroke-dashoffset:300}to{stroke-dashoffset:0}}
@@ -278,7 +297,6 @@ function copyApi() {
   });
 }
 
-// Added the RED palette back safely
 const GC = {
   gray:   {fill:'#ffffff', stroke:'#CBD5E1', text:'#475569', badge:'#F1F5F9', bt:'#64748B'},
   primary:{fill:'#EDF2FF', stroke:'#2B66F6', text:'#1A4BD2', badge:'#C3D4FC', bt:'#081A3E'},
@@ -355,7 +373,6 @@ function flowLine(x1, y1, x2, y2, col, marker, delay) {
   el('line', a, g);
 }
 
-/* Functions explicitly line-broken to prevent text-editor truncation errors */
 function s0() { 
   clear(); 
   uCard(450,150,'James','learner','gray',0); 
@@ -640,7 +657,6 @@ function s10() {
   });
 }
 
-// Arrays defined safely without super-long lines
 const STEPS = [
   {
     slabel: 'Arrive', 
@@ -746,7 +762,7 @@ const STEPS = [
 let cur = 0;
 
 function buildUI() {
-  const container = document.getElementById('timeline-container');
+  const container = document.getElementById('timeline-nodes');
   
   STEPS.forEach((s, i) => {
     const d = document.createElement('div');
