@@ -275,12 +275,14 @@ function copyApi() {
   });
 }
 
+// Re-added the missing red palette to fix the Step 10 crash
 const GC = {
   gray:   {fill:'#ffffff', stroke:'#CBD5E1', text:'#475569', badge:'#F1F5F9', bt:'#64748B'},
   primary:{fill:'#EDF2FF', stroke:'#2B66F6', text:'#1A4BD2', badge:'#C3D4FC', bt:'#081A3E'},
   coral:  {fill:'#FFF1F2', stroke:'#E11D48', text:'#BE123C', badge:'#FECDD3', bt:'#881337'},
   blue:   {fill:'#F0F9FF', stroke:'#0284C7', text:'#0369A1', badge:'#BAE6FD', bt:'#0C4A6E'},
-  amber:  {fill:'#FFFBEB', stroke:'#D97706', text:'#B45309', badge:'#FDE68A', bt:'#78350F'}
+  amber:  {fill:'#FFFBEB', stroke:'#D97706', text:'#B45309', badge:'#FDE68A', bt:'#78350F'},
+  red:    {fill:'#FEF2F2', stroke:'#EF4444', text:'#B91C1C', badge:'#FECACA', bt:'#7F1D1D'}
 };
 
 function el(tag,attrs,parent){const e=document.createElementNS('http://www.w3.org/2000/svg',tag);Object.entries(attrs||{}).forEach(([k,v])=>e.setAttribute(k,v));if(parent)parent.appendChild(e);return e;}
