@@ -12,7 +12,7 @@
   --lu-dark: #081A3E;
   --lu-text: #4A5568;
   
-  /* Emerald Glow Theme */
+  /* Emerald Glow Theme for Timeline */
   --glow-green: #10B981;
   --glow-green-light: #34D399;
   --glow-green-dark: #059669;
@@ -96,7 +96,6 @@ body {
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.02), 0 4px 12px rgba(8, 26, 62, 0.04);
 }
 
-/* THIN GLOWING TRACK EFFECT */
 .timeline-track-bg {
   position: absolute; top: 50%; left: 48px; right: 48px; height: 2px;
   background: rgba(148, 163, 184, 0.25);
@@ -111,39 +110,16 @@ body {
   box-shadow: 0 0 10px 2px var(--glow-green-light);
 }
 
-/* The Wide, Diffuse Green Aura */
 .timeline-track-fill::after {
-  content: '';
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translate(50%, -50%);
-  width: 90px;
-  height: 30px;
-  background: var(--glow-green-light);
-  border-radius: 50%;
-  filter: blur(12px);
-  opacity: 0.9;
-  pointer-events: none;
-  z-index: 0;
+  content: ''; position: absolute; right: 0; top: 50%; transform: translate(50%, -50%);
+  width: 90px; height: 30px; background: var(--glow-green-light);
+  border-radius: 50%; filter: blur(12px); opacity: 0.9; pointer-events: none; z-index: 0;
 }
 
-/* The Bright White-Hot Core */
 .timeline-track-fill::before {
-  content: '';
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translate(50%, -50%);
-  width: 20px;
-  height: 6px;
-  background: #ffffff;
-  border-radius: 50%;
-  filter: blur(3px);
-  box-shadow: 0 0 15px 5px var(--glow-green-light);
-  opacity: 1;
-  z-index: 1;
-  pointer-events: none;
+  content: ''; position: absolute; right: 0; top: 50%; transform: translate(50%, -50%);
+  width: 20px; height: 6px; background: #ffffff; border-radius: 50%;
+  filter: blur(3px); box-shadow: 0 0 15px 5px var(--glow-green-light); opacity: 1; z-index: 1; pointer-events: none;
 }
 
 .step-node-wrapper {
@@ -218,11 +194,8 @@ body {
 .anim-content.fade-out { opacity: 0; transform: translateY(8px); }
 .anim-content.fade-in { opacity: 1; transform: translateY(0); }
 
-@keyframes flowDash { to { stroke-dashoffset: -16; } }
-.path-flow { stroke-dasharray: 6 6; animation: fadeUp 0.4s ease both, flowDash 0.8s linear infinite; }
 @keyframes popIn{from{opacity:0;transform:scale(0.85) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-@keyframes drawLine{from{stroke-dashoffset:300}to{stroke-dashoffset:0}}
 @keyframes floatParticle{0%{transform:translateY(0) scale(1); opacity:0;} 50%{opacity:1;} 100%{transform:translateY(-40px) scale(0.8); opacity:0;}}
 </style>
 </head>
@@ -308,7 +281,7 @@ function copyApi() {
 
 const GC = {
   gray:   {fill:'#ffffff', stroke:'#CBD5E1', text:'#475569', badge:'#F1F5F9', bt:'#64748B'},
-  primary:{fill:'#D1FAE5', stroke:'#10B981', text:'#059669', badge:'#A7F3D0', bt:'#064E3B'},
+  primary:{fill:'#EDF2FF', stroke:'#2B66F6', text:'#1A4BD2', badge:'#C3D4FC', bt:'#081A3E'},
   coral:  {fill:'#FFF1F2', stroke:'#E11D48', text:'#BE123C', badge:'#FECDD3', bt:'#881337'},
   blue:   {fill:'#F0F9FF', stroke:'#0284C7', text:'#0369A1', badge:'#BAE6FD', bt:'#0C4A6E'},
   amber:  {fill:'#FFFBEB', stroke:'#D97706', text:'#B45309', badge:'#FDE68A', bt:'#78350F'},
@@ -319,12 +292,31 @@ function el(tag,attrs,parent){const e=document.createElementNS('http://www.w3.or
 function txt(x,y,text,attrs,parent){const t=el('text',{x,y,'text-anchor':'middle','dominant-baseline':'central',...attrs},parent);t.textContent=text;return t;}
 function aG(d=0){const g=el('g',{style:`animation:popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) ${d}s both`},svg);return g;}
 function fG(d=0){const g=el('g',{style:`animation:fadeUp 0.4s ease ${d}s both`},svg);return g;}
-function clear(){while(svg.firstChild)svg.removeChild(svg.firstChild);mkDefs();}
+function clear(){while(svg.firstChild)svg.removeChild(svg.firstChild);}
 
-function mkDefs(){
-  const d=el('defs',{},svg);
-  const mk=(id,col)=>{const m=el('marker',{id,viewBox:'0 0 10 10',refX:'8',refY:'5',markerWidth:'5',markerHeight:'5',orient:'auto-start-reverse'},d);el('path',{d:'M2 1L8 5L2 9',fill:'none',stroke:col,'stroke-width':'1.5','stroke-linecap':'round'},m);};
-  mk('ah','#10B981'); mk('ah2','#E11D48');
+// Completely replaces all line/arrow drawing with the animated Red Laser effect
+function laserConnect(x1, y1, x2, y2, delay) {
+  const col = '#E11D48'; // Red for all connection hierarchy mapping
+  const g = el('g', {style: `animation: fadeUp 0.4s ease ${delay}s both;`}, svg);
+  const L = Math.sqrt(Math.pow(x2-x1, 2) + Math.pow(y2-y1, 2));
+
+  // 1. Faint Base Track
+  el('line', {x1, y1, x2, y2, stroke: col, 'stroke-width': '2', opacity: '0.15', 'stroke-linecap': 'round'}, g);
+
+  // 2. Animated Flow Line
+  const laser = el('line', {x1, y1, x2, y2, stroke: col, 'stroke-width': '2.5', 'stroke-linecap': 'round'}, g);
+  laser.setAttribute('stroke-dasharray', `${L * 0.4} ${L}`);
+  laser.style.filter = `drop-shadow(0 0 4px ${col})`;
+  el('animate', { attributeName: 'stroke-dashoffset', from: L, to: -L, dur: '1.5s', repeatCount: 'indefinite' }, laser);
+
+  // 3. Glowing Aura (Red)
+  const aura = el('circle', {cx: 0, cy: 0, r: 5, fill: col, opacity: 0.7}, g);
+  aura.style.filter = `drop-shadow(0 0 6px ${col})`;
+  el('animateMotion', { path: `M ${x1} ${y1} L ${x2} ${y2}`, dur: '1.5s', repeatCount: 'indefinite' }, aura);
+
+  // 4. Hot Core (White)
+  const dot = el('circle', {cx: 0, cy: 0, r: 2, fill: '#fff'}, g);
+  el('animateMotion', { path: `M ${x1} ${y1} L ${x2} ${y2}`, dur: '1.5s', repeatCount: 'indefinite' }, dot);
 }
 
 function uCard(x, y, name, role, color, delay, parent) {
@@ -366,22 +358,7 @@ function gBox(x, y, w, h, label, color, delay) {
   return g;
 }
 
-function cLine(x1, y1, x2, y2, col, marker, delay) {
-  const g = fG(delay); svg.appendChild(g);
-  const a = {x1, y1, x2, y2, stroke:col, 'stroke-width':'1.5'};
-  if(marker) a['marker-end'] = `url(#${marker})`;
-  const ln = el('line', a, g);
-  ln.style.strokeDasharray = '300'; ln.style.strokeDashoffset = '300';
-  ln.style.animation = `drawLine 0.6s ease ${delay}s both`;
-}
-
-function flowLine(x1, y1, x2, y2, col, marker, delay) {
-  const g = el('g', {style: `animation: fadeUp 0.4s ease ${delay}s both;`}, svg);
-  const a = {x1, y1, x2, y2, stroke:col, 'stroke-width':'2', 'class':'path-flow'};
-  if(marker) a['marker-end'] = `url(#${marker})`;
-  el('line', a, g);
-}
-
+/* Canvas Scenes */
 function s0() { 
   clear(); 
   uCard(450,150,'James','learner','gray',0); 
@@ -422,7 +399,7 @@ function s2() {
   svg.appendChild(ag); 
   el('rect', {x:408, y:172, width:68, height:26, rx:5, fill:GC.amber.fill, stroke:GC.amber.stroke, 'stroke-width':'0.5'}, ag); 
   txt(442, 185, 'PUT /users', {'font-size':9, fill:GC.amber.text, 'font-family':'monospace', 'font-weight':700}, ag); 
-  cLine(476, 185, 512, 185, '#D97706', 'ah2', 0.3); 
+  laserConnect(476, 185, 512, 185, 0.3); 
   uCard(544, 185, 'James', 'manager', 'primary', 0.5); 
   
   const wg = fG(0.7); 
@@ -435,7 +412,7 @@ function s2() {
 function s3() { 
   clear(); 
   uCard(450, 60, 'James', 'manager', 'primary', 0); 
-  cLine(450, 100, 450, 150, '#10B981', 'ah', 0.15); 
+  laserConnect(450, 100, 450, 150, 0.15); 
   gBox(450, 240, 300, 160, 'UK Sales — James Smith', 'primary', 0.2); 
   
   const eg = fG(0.45); 
@@ -449,7 +426,7 @@ function s4() {
   clear(); 
   gBox(450, 240, 340, 160, 'UK Sales — James Smith', 'primary', 0); 
   uCard(450, 60, 'James', 'manager', 'primary', 0.05); 
-  cLine(450, 100, 450, 150, '#10B981', null, 0.1); 
+  laserConnect(450, 100, 450, 150, 0.1); 
   
   [{n:'Sarah',x:310}, {n:'Tom',x:380}, {n:'Priya',x:450}, {n:'Amir',x:520}, {n:'Zoe',x:590}].forEach((m,i) => {
     uCard(m.x, 240, m.n, 'learner', 'primary', 0.2+i*0.1);
@@ -465,7 +442,7 @@ function s5() {
   }); 
   
   uCard(450, 60, 'James', 'manager', 'coral', 0.05); 
-  flowLine(450, 100, 450, 150, '#E11D48', 'ah2', 0.35); 
+  laserConnect(450, 100, 450, 150, 0.35); 
   
   const lb = fG(0.5); 
   svg.appendChild(lb); 
@@ -488,8 +465,8 @@ function s6() {
   
   uCard(250, 60, 'James', 'manager', 'coral', 0); 
   uCard(650, 60, 'Maria', 'manager', 'coral', 0.1); 
-  flowLine(250, 100, 250, 150, '#E11D48', 'ah2', 0.3); 
-  flowLine(650, 100, 650, 150, '#E11D48', 'ah2', 0.4); 
+  laserConnect(250, 100, 250, 150, 0.3); 
+  laserConnect(650, 100, 650, 150, 0.4); 
 }
 
 function s7() { 
@@ -509,8 +486,8 @@ function s7() {
   uCard(650, 60, 'Maria', 'manager', 'coral', 0); 
   uCard(450, 40, 'Rachel', 'vp', 'primary', 0.3); 
   
-  flowLine(450, 85, 250, 150, '#10B981', 'ah', 0.55); 
-  flowLine(450, 85, 650, 150, '#10B981', 'ah', 0.7); 
+  laserConnect(450, 85, 250, 150, 0.55); 
+  laserConnect(450, 85, 650, 150, 0.7); 
 }
 
 function s8() { 
@@ -585,7 +562,7 @@ function s9() {
   
   [{t:'Dashboard',y:80}, {t:'My Groups',y:105,a:1}, {t:'Reports',y:130}].forEach(item => { 
     if(item.a) {
-      el('rect', {x:180, y:item.y-12, width:110, height:24, fill:'#D1FAE5'}, sd); 
+      el('rect', {x:180, y:item.y-12, width:110, height:24, fill:'#EDF2FF'}, sd); 
     }
     txt(235, item.y, item.t, {'font-size':10, 'text-anchor':'middle', fill:item.a ? '#059669' : '#4A5568', 'font-weight':item.a ? '700' : '500'}, sd); 
   }); 
@@ -681,7 +658,7 @@ const STEPS = [
     label: 'Manager check',
     headline: 'Does this person manage direct reports?',
     detail: 'The integration reads a manager flag from the HRIS. This single field determines everything that follows. Manager = true means promote first. Manager = false means skip straight to group assignment.',
-    api: '<span class="c-comment">// HRIS field check</span>\nmanager_flag = <span class="c-primary">true</span>  → promote first\nmanager_flag = <span class="c-comment">false</span> → skip to group',
+    api: '<span class="c-comment">// HRIS field check</span>\nmanager_flag = <span class="c-primary" style="color: #34D399;">true</span>  → promote first\nmanager_flag = <span class="c-comment">false</span> → skip to group',
     apilabel: 'LOGIC',
     draw: s1
   },
